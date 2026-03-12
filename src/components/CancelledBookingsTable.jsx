@@ -7,6 +7,7 @@ const PAGE_SIZE = 15;
 const COLS = [
   { key: 'apptDateISO', label: 'Date'    },
   { key: 'time',        label: 'Time'    },
+  { key: 'code',        label: 'Code'    },
   { key: 'service',     label: 'Service' },
   { key: 'provider',    label: 'Provider'},
   { key: 'client',      label: 'Client'  },
@@ -26,6 +27,7 @@ export function CancelledBookingsTable({ rows }) {
         r.client.toLowerCase().includes(q) ||
         r.service.toLowerCase().includes(q) ||
         r.provider.toLowerCase().includes(q) ||
+        (r.code || '').toLowerCase().includes(q) ||
         (r.cancellationType || '').toLowerCase().includes(q)
     );
   }, [rows, search]);
@@ -103,6 +105,7 @@ export function CancelledBookingsTable({ rows }) {
                 <tr key={r.code || i}>
                   <td>{r.date}</td>
                   <td className="c-muted">{r.time}</td>
+                  <td className="c-muted">{r.code}</td>
                   <td className="c-muted">{r.service}</td>
                   <td>{r.provider}</td>
                   <td>{r.client}</td>
