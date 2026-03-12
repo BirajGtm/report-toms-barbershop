@@ -12,6 +12,7 @@ import { ReconciliationPanel }   from './components/ReconciliationPanel';
 import { BookingsTable }         from './components/BookingsTable';
 import { TopClientsTable }       from './components/TopClientsTable';
 import { CancelledBookingsTable } from './components/CancelledBookingsTable';
+import { HelpModal }             from './components/HelpModal';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function unique(arr) {
@@ -198,10 +199,11 @@ export default function App() {
       {/* Header */}
       <header className="app-header">
         <div className="header-logo">✂️</div>
-        <div>
+        <div style={{ flex: 1 }}>
           <div className="header-text-title">Booking Report Analyzer</div>
           <div className="header-text-sub">Tom's Barbershop · Financial Dashboard</div>
         </div>
+        <HelpModal />
       </header>
 
       <main className="app-main">
