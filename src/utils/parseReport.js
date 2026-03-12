@@ -124,9 +124,18 @@ export function normalizeRow(raw) {
  */
 export function processReport(rawRows) {
   const allRows = rawRows.map(normalizeRow);
-  // CONFIRMED: not cancelled AND amount collected
-  const confirmed = allRows.filter((r) => !r.isCancelled && r.amount > 0);
-  const unconfirmed = allRows.filter((r) => r.isCancelled || r.amount === 0);
+
+  // CONFIRMED: not cancelled AND (amount collected OR tips collected)
+  // This guarantees a $0 comped haircut with a cash tip is counted as a completed service
+  // so the provider still gets their tip on the dashboard.
+  const confirmed = allRows.filter(
+    (r) => !r.isCancelled && (r.amount > 0 || r.tips > 0),
+  );
+
+  // UNFINISHED: cancelled OR ($0 amount AND $0 tips)
+  const unconfirmed = allRows.filter(
+    (r) => r.isCancelled || (r.amount === 0 && r.tips === 0),
+  );
 
   return {
     allRows,
