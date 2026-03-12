@@ -1,16 +1,70 @@
-# React + Vite
+# Tom's Barbershop — Booking Report Analyzer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive, standalone React specific financial dashboard built to accurately parse and visualize booking exports from Tom's Barbershop.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To run the application locally:
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Then open `http://localhost:5174` in your browser.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📊 Core Business Logic
+
+Due to the nature of barbershop payouts, basic summations of exported columns result in massive inaccuracies. This engine applies rigorous parsing rules to guarantee 100% financial accuracy.
+
+### 1. Booking Classification
+
+Every row imported via CSV/Excel is classified into one of two buckets: **Confirmed** or **Unfinished**.
+
+**✅ Confirmed Bookings (Revenue Generating)**
+Included in all KPIs, Provider Tables, and Location Sales. A booking is confirmed if it is **not cancelled** AND one of the following is true:
+
+- The post-tax `Amount` collected is > $0
+- The `Tips amount` collected is > $0 _(Protects $0/comped services where the client tipped in cash at the chair)_
+
+**⚠️ Unfinished / Cancelled**
+Completely excluded from revenue data to prevent inflated numbers. Appears only in the "Unfinished" safety table.
+
+- The booking `Is cancelled` = "Yes" (By admin, client, etc.)
+- The booking was never officially cancelled, but `Amount` = $0 and `Tips amount` = $0 (Ghost/Pending/No-Show).
+
+### 2. Money Definitions
+
+- **Price (Pre-tax):** The base value of the service performed.
+- **Amount (Service Revenue):** The exact post-tax amount the shop charged the client. (Note: Some "Pay Later" bookings apply tax at the POS, meaning their exported `Amount` = `Price`).
+- **HST Collected:** Calculated dynamically as `max(Amount - Price, 0)`.
+- **Tips:** Pulled exclusively from the `Tips amount` column.
+
+### 3. Provider Earnings Protection
+
+The most critical function of this dashboard is ensuring providers are paid accurately and do not lose their untaxed tips.
+
+1. **Tips are never mixed with revenue:** Tips are completely separated from the invoice `Amount`.
+2. **100% credited to provider:** The provider earnings table calculates:
+   _Service Revenue (Amount) + Tips = Total Earned_
+3. **Comped haircut safety net:** As noted above, if a provider comps a haircut ($0 service revenue) but walks away with a cash tip, this engine correctly classifies the booking as "Confirmed" and assigns the tip to the provider.
+
+### 4. Payment Methods
+
+Payment mapping logic categorizes the `Payment processor` string into:
+
+- `"Cash"` → **Cash**
+- `"stripe"` → **Online (Stripe)**
+- `"delay"` → **Pay Later** _(Invoice created, payment not processed online)_
+- _Empty_ → **Unspecified**
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework:** React 18 + Vite
+- **Data Parsing:** PapaParse (CSV) + SheetJS (XLSX, XLS)
+- **Visualizations:** Chart.js + react-chartjs-2
+- **Styling:** Custom CSS + Glassmorphism UI
