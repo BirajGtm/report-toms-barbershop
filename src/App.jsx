@@ -88,14 +88,14 @@ function UploadZone({ onLoad, loadedName, onReset }) {
 }
 
 // ── Filter Bar ────────────────────────────────────────────────────────────────
-function FilterBar({ confirmed, filters, setFilters }) {
-  const locations = useMemo(() => unique(confirmed.map((r) => r.location)), [confirmed]);
-  const providers = useMemo(() => unique(confirmed.map((r) => r.provider)), [confirmed]);
+function FilterBar({ allRows, filters, setFilters }) {
+  const locations = useMemo(() => unique(allRows.map((r) => r.location)), [allRows]);
+  const providers = useMemo(() => unique(allRows.map((r) => r.provider)), [allRows]);
 
   const set = (key, val) => setFilters((f) => ({ ...f, [key]: val }));
 
   const reset = () => {
-    const dates = confirmed.map((r) => r.apptDateISO).filter(Boolean).sort();
+    const dates = allRows.map((r) => r.apptDateISO).filter(Boolean).sort();
     setFilters({
       dateFrom: dates[0] || '',
       dateTo:   dates[dates.length - 1] || '',
@@ -157,8 +157,8 @@ export default function App() {
     setReport(processed);
     setLoadedName(filename);
 
-    // Auto-set date range to full file range
-    const dates = processed.confirmed.map((r) => r.apptDateISO).filter(Boolean).sort();
+    // Auto-set date range to full file range based on ALL rows, including unconfirmed
+    const dates = processed.allRows.map((r) => r.apptDateISO).filter(Boolean).sort();
     setFilters({ dateFrom: dates[0] || '', dateTo: dates[dates.length - 1] || '', location: '', provider: '' });
   }, []);
 
@@ -213,7 +213,7 @@ export default function App() {
         {report && (
           <>
             {/* Filters */}
-            <FilterBar confirmed={report.confirmed} filters={filters} setFilters={setFilters} />
+            <FilterBar allRows={report.allRows} filters={filters} setFilters={setFilters} />
 
             {filteredRows.length === 0 ? (
               <div className="empty-state" style={{ marginTop: 40 }}>
