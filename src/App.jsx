@@ -19,6 +19,12 @@ function unique(arr) {
   return [...new Set(arr.filter(Boolean))].sort();
 }
 
+function getTodayISO() {
+  const d = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 // ── Upload Zone ───────────────────────────────────────────────────────────────
 function UploadZone({ onLoad, loadedName, onReset }) {
   const [drag, setDrag] = useState(false);
@@ -98,7 +104,7 @@ function FilterBar({ allRows, filters, setFilters }) {
     const dates = allRows.map((r) => r.apptDateISO).filter(Boolean).sort();
     setFilters({
       dateFrom: dates[0] || '',
-      dateTo:   dates[dates.length - 1] || '',
+      dateTo:   getTodayISO(),
       location: '',
       provider: '',
     });
@@ -159,7 +165,7 @@ export default function App() {
 
     // Auto-set date range to full file range based on ALL rows, including unconfirmed
     const dates = processed.allRows.map((r) => r.apptDateISO).filter(Boolean).sort();
-    setFilters({ dateFrom: dates[0] || '', dateTo: dates[dates.length - 1] || '', location: '', provider: '' });
+    setFilters({ dateFrom: dates[0] || '', dateTo: getTodayISO(), location: '', provider: '' });
   }, []);
 
   const handleReset = () => {
